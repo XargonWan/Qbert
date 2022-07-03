@@ -6,33 +6,25 @@
 
 workdir="${HOME}/.qbert/work"
 upperdir="${HOME}/.qbert/upperdir"
-version="0.1b"
+merged="${HOME}/.qbert/merged"
+version="0.2b"
 
-if [ ! -d "${HOME}/.qbert/" ]
-then
-    mkdir -p "$workdir"
-    mkdir -p "$upperdir"
-fi
-sudo mount -t overlay overlay -o lowerdir=/,upperdir=$upperdir,workdir="$workdir" /merged
-echo -e "@#?%&#*!\n(Overlay is mounted!)"
+print_help(){
 
-# Arguments section
-
-for i in "$@"; do
-  case $i in
-    -h*|--help*)
-      echo "Qbert v""$version"
-      echo "
-      Usage:
+echo "Qbert v""$version"
+echo "
+Usage:
 qbert [ARGUMENTS]
 
 Arguments:
-    -h, --help        Print this help
-    -v, --version     Print Qbert version
-    --install         Installs Qbert in /usr/bin/qbert to be invoked as qbert
-    --history         Shows all the qbert commands history
-    --umount          Unmount the overlay
-    --delete-overlay  Destroys the overlay (you will lose all data)
+    -h, --help          Print this help
+    -v, --version       Print Qbert version
+    --install-qbert     Installs Qbert in /usr/bin/qbert to be invoked as qbert
+    --uninstall-qbert   Uninstalls Qbert
+    --history           Shows all the qbert commands history
+    --mount             Mount the overlay
+    --umount            Unmount the overlay
+    --delete-overlay    Destroys the overlay (you will lose all data)
 
 Any other argument will be passed to your package manager, for example:
 
@@ -49,39 +41,71 @@ But it will be done inside the overlay.
 NOTE: RetroDECK is not available in pacman but as a flatpak, for more info:
 https://retrodeck.net
 "
+}
+
+mkdir -p "$workdir"
+mkdir -p "$upperdir"
+mkdir -p "$merged"
+
+sudo mount -t overlay overlay -o lowerdir=/,upperdir=$upperdir,workdir="$workdir" $merged
+
+# Arguments section
+
+for i in $@; do
+  case "$i" in
+    -h*|--help*)
+      print_help
       exit
       ;;
     --version*|-v*)
       echo "Qbert v""$version"
       exit
       ;;
-    --install*)
+    --install-qbert*)
       sudo cp qbert.sh /usr/bin/qbert
-      chmod +x /usr/bin/qbert
+      sudo chmod +x /usr/bin/qbert
       echo -e "Qbert is installed in /usr/bin/qbert.\nInvoke it by wirting qbert.\nFeel free to delete qbert.sh"
-      shift # past argument with no value
+      exit
+      ;;
+    --uninstall-qbert*)
+      sudo rm -f /usr/bin/qbert
+      echo -e "Qbert is uninstalled.\nFor completely remove its data run rm -rf ~/.qbert"
+      exit
       ;;
     --history*)
       history | grep qbert
-      shift # past argument with no value
+      exit
+      ;;
+    --mount*)
+      echo -e "@#?%&#*\n(Overlay mounted)"
+      exit
       ;;
     --umount*)
       sudo umount overlay
-      shift # past argument with no value
+      echo -e "@#?%&#*\n(Overlay unmounted)"
+      exit
       ;;
     --delete-overlay*)
       rm -rf "$workdir"
-      shift # past argument with no value
+      exit
       ;;
     -*|--*|*)
-          if [ -x "$(command -v apk)" ];     then sudo apk $i
-        elif [ -x "$(command -v apt)" ];     then sudo apt $i
-        elif [ -x "$(command -v apt-get)" ]; then sudo apt-get $i
-        elif [ -x "$(command -v dnf)" ];     then sudo dnf $i
-        elif [ -x "$(command -v zypper)" ];  then sudo zypper $i
-        elif [ -x "$(command -v pacman)" ];  then sudo pacman $i
+      echo -e "@#?%&#*!\n(Overlay is mounted!)\n"
+          if [ -x "$(command -v apk)" ];     then sudo apk "$@"
+        elif [ -x "$(command -v apt)" ];     then sudo apt "$@"
+        elif [ -x "$(command -v apt-get)" ]; then sudo apt-get "$@"
+        elif [ -x "$(command -v dnf)" ];     then sudo dnf "$@"
+        elif [ -x "$(command -v zypper)" ];  then sudo zypper "$@"
+        elif [ -x "$(command -v pacman)" ];  then sudo pacman "$@"
         else echo -e '@#?%! \n(No package manager found!)'
         fi
+      exit
       ;;
   esac
 done
+
+if [ -z "$@" ] # if argument is null
+then
+  print_help
+  exit
+fi
