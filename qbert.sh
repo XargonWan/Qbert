@@ -14,6 +14,7 @@ then
     mkdir -p "$upperdir"
 fi
 sudo mount -t overlay overlay -o lowerdir=/,upperdir=$upperdir,workdir="$workdir" /merged
+echo -e "@#?%&#*!\n(Overlay is mounted!)"
 
 # Arguments section
 
