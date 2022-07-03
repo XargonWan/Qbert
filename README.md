@@ -1,4 +1,7 @@
 # Qbert
+
+[![GitHub license](https://img.shields.io/github/license/XargonWan/Qbert)](https://github.com/XargonWan/Qbert/blob/main/LICENSE)
+
 Qbert generates a root overlay where you can install whatever software you need without messing your filesystem.
 
 This project was born because I needed some easy way to install pacman stuff on my Steam Deck, so I decided to create a script to make it easier.
