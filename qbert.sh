@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Qbert is creating an overlay on / in order to install pacman packages over a read only filesystem
+# Qbert is creating an overlay on root in order to install pacman (and other) packages over a read only (or even rw) filesystem
 # this was born because I needed something to install softwares on my Steam Deck without unlocking the read only filesystem
 # Qbert is using GPLv3 (c) Xargon 2022
 
 workdir="${HOME}/.qbert/work"
 upperdir="${HOME}/.qbert/upperdir"
 merged="${HOME}/.qbert/merged"
-version="0.2b"
+version="0.3b"
 
 print_help(){
 
