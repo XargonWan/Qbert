@@ -1,6 +1,6 @@
 # Qbert
 
-[![GitHub license](https://img.shields.io/github/license/XargonWan/Qbert)](https://github.com/XargonWan/Qbert/blob/main/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/XargonWan/Qbert)](https://github.com/XargonWan/Qbert/blob/main/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/XargonWan/Qbert)](https://github.com/XargonWan/Qbert/issues)
 
 Qbert generates a root overlay where you can install whatever software you need without messing your filesystem.
 
