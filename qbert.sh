@@ -10,7 +10,7 @@ upperdir="$basedir/upperdir"
 merged="$basedir/merged"
 version="0.4b"
 
-mountpoints=( "/lib" "/lib32" "/lib64" "/libx32" "/opt" "/root" "/sbin" "/srv" "/sys" "/usr" "/var" )
+mountpoints=( "/lib" "/lib32" "/lib64" "/libx32" "/opt" "/root" "/sbin" "/srv" "/sys" "/usr" "/var" "/bin" )
 
 print_help(){
 
@@ -26,7 +26,7 @@ Arguments:
     --uninstall-qbert   Uninstalls Qbert
     --history           Shows all the qbert commands history
     --mount             Mount the overlay
-    --umount            Unmount the overlay
+    --umount, --unmount Unmount the overlay
     --delete-overlay    Destroys the overlay (you will lose all data)
 
 Any other argument will be passed to your package manager, for example:
@@ -49,9 +49,11 @@ https://retrodeck.net
 qmount() {
   for m in "${mountpoints[@]}"
   do
-    if grep -qs "$m" /proc/mounts
+    check="grep -qs ${m} /proc/mounts"
+    if [ -z "$check" ]
     then
       :
+      echo "Mount point $m not found"
     else
       mkdir -p "$upperdir$m"
       mkdir -p "$workdir$m"
@@ -66,7 +68,8 @@ qmount() {
 qumount() {
   for m in "${mountpoints[@]}"
   do
-    if grep -qs "$m" /proc/mounts
+    check="grep -qs ${m} /proc/mounts"
+    if [ -z "$check" ]
     then
       noslash="${m##*/}"
       mname="overlay-"$noslash
@@ -107,13 +110,14 @@ for i in $@; do
       echo -e "@#?%&#*\n(Overlay mounted)"
       exit
       ;;
-    --umount*)
+    --umount*|--unmount*)
       qumount
       echo -e "@#?%&#*\n(Overlay unmounted)"
       exit
       ;;
     --delete-overlay*)
-      rm -rf "$basedir"
+      qumount
+      sudo rm -rf "$basedir"
       exit
       ;;
     --pacman-keyring-init*)
