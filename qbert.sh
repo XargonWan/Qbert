@@ -8,7 +8,7 @@ basedir="${HOME}/.qbert"
 workdir="$basedir/work"
 upperdir="$basedir/upperdir"
 merged="$basedir/merged"
-version="0.4b"
+version="0.5b"
 
 mountpoints=( "/lib" "/lib32" "/lib64" "/libx32" "/opt" "/root" "/sbin" "/srv" "/sys" "/usr" "/var" "/bin" )
 
