@@ -4,10 +4,13 @@
 # this was born because I needed something to install softwares on my Steam Deck without unlocking the read only filesystem
 # Qbert is using GPLv3 (c) Xargon 2022
 
-workdir="${HOME}/.qbert/work"
-upperdir="${HOME}/.qbert/upperdir"
-merged="${HOME}/.qbert/merged"
-version="0.3b"
+basedir="${HOME}/.qbert"
+workdir="$basedir/work"
+upperdir="$basedir/upperdir"
+merged="$basedir/merged"
+version="0.4b"
+
+mountpoints=( "/lib" "/lib32" "/lib64" "/libx32" "/opt" "/root" "/sbin" "/srv" "/sys" "/usr" "/var" )
 
 print_help(){
 
@@ -43,11 +46,34 @@ https://retrodeck.net
 "
 }
 
-mkdir -p "$workdir"
-mkdir -p "$upperdir"
-mkdir -p "$merged"
+qmount() {
+  for m in "${mountpoints[@]}"
+  do
+    if grep -qs "$m" /proc/mounts
+    then
+      :
+    else
+      mkdir -p "$upperdir$m"
+      mkdir -p "$workdir$m"
+      mkdir -p "$merged$m"
+      noslash="${m##*/}"
+      mname="overlay-"$noslash
+      sudo mount -t overlay "$mname" -o lowerdir="$m",upperdir="$upperdir$m",workdir="$workdir$m" "$merged$m"
+    fi
+  done
+}
 
-sudo mount -t overlay overlay -o lowerdir=/,upperdir=$upperdir,workdir="$workdir" $merged
+qumount() {
+  for m in "${mountpoints[@]}"
+  do
+    if grep -qs "$m" /proc/mounts
+    then
+      noslash="${m##*/}"
+      mname="overlay-"$noslash
+      sudo umount "$merged$m"
+    fi
+  done
+}
 
 # Arguments section
 
@@ -77,20 +103,26 @@ for i in $@; do
       exit
       ;;
     --mount*)
+      qmount
       echo -e "@#?%&#*\n(Overlay mounted)"
       exit
       ;;
     --umount*)
-      sudo umount overlay
+      qumount
       echo -e "@#?%&#*\n(Overlay unmounted)"
       exit
       ;;
     --delete-overlay*)
-      rm -rf "$workdir"
+      rm -rf "$basedir"
+      exit
+      ;;
+    --pacman-keyring-init*)
+      # TODO
+      # add it to the help
       exit
       ;;
     -*|--*|*)
-      echo -e "@#?%&#*!\n(Overlay is mounted!)\n"
+      qmount
           if [ -x "$(command -v apk)" ];     then sudo apk "$@"
         elif [ -x "$(command -v apt)" ];     then sudo apt "$@"
         elif [ -x "$(command -v apt-get)" ]; then sudo apt-get "$@"
