@@ -28,6 +28,7 @@ Arguments:
     --mount             Mount the overlay
     --umount, --unmount Unmount the overlay
     --delete-overlay    Destroys the overlay (you will lose all data)
+    --run <command>     Execute the specified command in the mounted environment
 
 Any other argument will be passed to your package manager, for example:
 
@@ -61,6 +62,9 @@ qmount() {
       noslash="${m##*/}"
       mname="overlay-"$noslash
       sudo mount -t overlay "$mname" -o lowerdir="$m",upperdir="$upperdir$m",workdir="$workdir$m" "$merged$m"
+      sudo mount --rbind /dev $merged/dev
+      sudo mount --rbind /sys $merged/sys
+      sudo mount --rbind /proc $merged/proc
     fi
   done
 }
@@ -125,14 +129,20 @@ for i in $@; do
       # add it to the help
       exit
       ;;
+    --run*)
+      # TODO check if it's already mounted
+      qmount
+      chroot "$merged" "$@"
+      exit
+      ;;
     -*|--*|*)
       qmount
-          if [ -x "$(command -v apk)" ];     then sudo apk "$@"
-        elif [ -x "$(command -v apt)" ];     then sudo apt "$@"
-        elif [ -x "$(command -v apt-get)" ]; then sudo apt-get "$@"
-        elif [ -x "$(command -v dnf)" ];     then sudo dnf "$@"
-        elif [ -x "$(command -v zypper)" ];  then sudo zypper "$@"
-        elif [ -x "$(command -v pacman)" ];  then sudo pacman "$@"
+          if [ -x "$(command -v apk)" ];     then chroot "$merged" sudo apk "$@"
+        elif [ -x "$(command -v apt)" ];     then chroot "$merged" sudo apt "$@"
+        elif [ -x "$(command -v apt-get)" ]; then chroot "$merged" sudo apt-get "$@"
+        elif [ -x "$(command -v dnf)" ];     then chroot "$merged" sudo dnf "$@"
+        elif [ -x "$(command -v zypper)" ];  then chroot "$merged" sudo zypper "$@"
+        elif [ -x "$(command -v pacman)" ];  then chroot "$merged" sudo pacman "$@"
         else echo -e '@#?%! \n(No package manager found!)'
         fi
       exit
