@@ -29,7 +29,7 @@ Arguments:
     --mount             Mount the overlay
     --umount, --unmount Unmount the overlay
     --delete-overlay    Destroys the overlay (you will lose all data)
-    --run <command>     Execute the specified command in the mounted environment
+    -r, --run <command> Execute the specified command in the mounted environment
 
 Any other argument will be passed to your package manager, for example:
 
@@ -135,7 +135,7 @@ for i in $@; do
       # add it to the help
       exit
       ;;
-    --run*)
+    --run*|-r*)
       # TODO check if it's already mounted
       qmount
       chroot "$merged" "$@"
