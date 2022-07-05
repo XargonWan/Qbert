@@ -11,6 +11,7 @@ merged="$basedir/merged"
 version="0.5b"
 
 mountpoints=( "/lib" "/lib32" "/lib64" "/libx32" "/opt" "/root" "/sbin" "/srv" "/sys" "/usr" "/var" "/bin" )
+binds=( "proc", "dev", "sys" )
 
 print_help(){
 
@@ -28,6 +29,7 @@ Arguments:
     --mount             Mount the overlay
     --umount, --unmount Unmount the overlay
     --delete-overlay    Destroys the overlay (you will lose all data)
+    -r, --run <command> Execute the specified command in the mounted environment
 
 Any other argument will be passed to your package manager, for example:
 
@@ -53,7 +55,6 @@ qmount() {
     if [ -z "$check" ]
     then
       :
-      echo "Mount point $m not found"
     else
       mkdir -p "$upperdir$m"
       mkdir -p "$workdir$m"
@@ -63,6 +64,15 @@ qmount() {
       sudo mount -t overlay "$mname" -o lowerdir="$m",upperdir="$upperdir$m",workdir="$workdir$m" "$merged$m"
     fi
   done
+  
+  for m in "${binds[@]}"
+    check="grep -qs /${m} /proc/mounts"
+    if [ -z "$check" ]
+    then
+        :
+    else
+        sudo mount --rbind /${m} $merged/${m}
+    fi    
 }
 
 qumount() {
@@ -125,14 +135,20 @@ for i in $@; do
       # add it to the help
       exit
       ;;
+    --run*|-r*)
+      # TODO check if it's already mounted
+      qmount
+      chroot "$merged" "$@"
+      exit
+      ;;
     -*|--*|*)
       qmount
-          if [ -x "$(command -v apk)" ];     then sudo apk "$@"
-        elif [ -x "$(command -v apt)" ];     then sudo apt "$@"
-        elif [ -x "$(command -v apt-get)" ]; then sudo apt-get "$@"
-        elif [ -x "$(command -v dnf)" ];     then sudo dnf "$@"
-        elif [ -x "$(command -v zypper)" ];  then sudo zypper "$@"
-        elif [ -x "$(command -v pacman)" ];  then sudo pacman "$@"
+          if [ -x "$(command -v apk)" ];     then chroot "$merged" sudo apk "$@"
+        elif [ -x "$(command -v apt)" ];     then chroot "$merged" sudo apt "$@"
+        elif [ -x "$(command -v apt-get)" ]; then chroot "$merged" sudo apt-get "$@"
+        elif [ -x "$(command -v dnf)" ];     then chroot "$merged" sudo dnf "$@"
+        elif [ -x "$(command -v zypper)" ];  then chroot "$merged" sudo zypper "$@"
+        elif [ -x "$(command -v pacman)" ];  then chroot "$merged" sudo pacman "$@"
         else echo -e '@#?%! \n(No package manager found!)'
         fi
       exit
