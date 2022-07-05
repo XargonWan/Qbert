@@ -11,6 +11,7 @@ merged="$basedir/merged"
 version="0.5b"
 
 mountpoints=( "/lib" "/lib32" "/lib64" "/libx32" "/opt" "/root" "/sbin" "/srv" "/sys" "/usr" "/var" "/bin" )
+binds=( "proc", "dev", "sys" )
 
 print_help(){
 
@@ -54,7 +55,6 @@ qmount() {
     if [ -z "$check" ]
     then
       :
-      echo "Mount point $m not found"
     else
       mkdir -p "$upperdir$m"
       mkdir -p "$workdir$m"
@@ -62,11 +62,17 @@ qmount() {
       noslash="${m##*/}"
       mname="overlay-"$noslash
       sudo mount -t overlay "$mname" -o lowerdir="$m",upperdir="$upperdir$m",workdir="$workdir$m" "$merged$m"
-      sudo mount --rbind /dev $merged/dev
-      sudo mount --rbind /sys $merged/sys
-      sudo mount --rbind /proc $merged/proc
     fi
   done
+  
+  for m in "${binds[@]}"
+    check="grep -qs /${m} /proc/mounts"
+    if [ -z "$check" ]
+    then
+        :
+    else
+        sudo mount --rbind /${m} $merged/${m}
+    fi    
 }
 
 qumount() {
