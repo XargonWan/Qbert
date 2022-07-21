@@ -20,14 +20,15 @@ Usage:
 qbert [ARGUMENTS]
 
 Arguments:
-    -h, --help          Print this help
-    -v, --version       Print Qbert version
-    --install-qbert     Installs Qbert in /usr/bin/qbert to be invoked as qbert
-    --uninstall-qbert   Uninstalls Qbert
-    --history           Shows all the qbert commands history
-    --mount             Mount the overlay
-    --umount, --unmount Unmount the overlay
-    --delete-overlay    Destroys the overlay (you will lose all data)
+    -h, --help            Print this help
+    -v, --version         Print Qbert version
+    --install-qbert       Installs Qbert in /usr/bin/qbert to be invoked as qbert
+    --uninstall-qbert     Uninstalls Qbert
+    --history             Shows all the qbert commands history
+    --mount               Mount the overlay
+    --umount, --unmount   Unmount the overlay
+    --delete-overlay      Destroys the overlay (you will lose all data)
+    --pacman-keyring-init Prepare the pacman keyring for installing packages (required at least once if you haven't already done it manually)
 
 Any other argument will be passed to your package manager, for example:
 
@@ -121,8 +122,9 @@ for i in $@; do
       exit
       ;;
     --pacman-keyring-init*)
-      # TODO
-      # add it to the help
+      sudo pacman-key --init
+      sudo pacman-key --populate archlinux
+      sudo pacman-key --refresh-keys
       exit
       ;;
     -*|--*|*)
