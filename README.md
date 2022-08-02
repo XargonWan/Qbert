@@ -1,7 +1,7 @@
-# Qbert
-
 ## NOTICE
 Something is broken atm, Qbert is not creating a correct overlay so basically the software is not working as intended.
+
+# Qbert
 
 [![GitHub license](https://img.shields.io/github/license/XargonWan/Qbert)](https://github.com/XargonWan/Qbert/blob/main/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/XargonWan/Qbert)](https://github.com/XargonWan/Qbert/issues)
 
