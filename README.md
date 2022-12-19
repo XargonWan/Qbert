@@ -1,5 +1,6 @@
 ## NOTICE
 Something is broken atm, Qbert is not creating a correct overlay so basically the software is not working as intended.
+A the moment I have no time to dedicate to the project but I'm open for contributions.
 
 # Qbert
 
