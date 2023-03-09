@@ -132,6 +132,7 @@ for i in $@; do
         elif [ -x "$(command -v apt-get)" ]; then sudo apt-get "$@"
         elif [ -x "$(command -v dnf)" ];     then sudo dnf "$@"
         elif [ -x "$(command -v zypper)" ];  then sudo zypper "$@"
+        elif [ -x "$(command -v yay)" ];     then yay "$@" # yay prefers not being ran as sudo, and comes pre-installed on the deck.
         elif [ -x "$(command -v pacman)" ];  then sudo pacman "$@"
         else echo -e '@#?%! \n(No package manager found!)'
         fi
