@@ -2,6 +2,8 @@
 Something is broken atm, Qbert is not creating a correct overlay so basically the software is not working as intended.
 A the moment I have no time to dedicate to the project but I'm open for contributions.
 
+Probably [Distrobox](https://github.com/89luca89/distrobox) deprecates QBert.
+
 # Qbert
 
 [![GitHub license](https://img.shields.io/github/license/XargonWan/Qbert)](https://github.com/XargonWan/Qbert/blob/main/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/XargonWan/Qbert)](https://github.com/XargonWan/Qbert/issues)
